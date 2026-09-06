@@ -40,7 +40,7 @@ func useMiddlewares(e *echo.Echo) {
 
 				logger := slog.With("correlation_id", reqCorrelationID)
 
-				if testName := c.Request().Header.Get("TestName"); testName != "" {
+				if testName := c.Request().Header.Get(TestNameHeader); testName != "" {
 					logger = logger.With("test_name", testName)
 				}
 
