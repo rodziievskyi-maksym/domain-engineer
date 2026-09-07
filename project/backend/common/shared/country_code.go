@@ -35,3 +35,33 @@ func MustNewCountryCode(value string) CountryCode {
 
 	return c
 }
+
+type OrderStatus struct {
+	common.Enum[OrderStatusType]
+}
+
+func (o OrderStatus) Status() string {
+	return o.String()
+}
+
+type OrderStatusType string
+
+func (o OrderStatusType) Values() []string {
+	return []string{
+		"CREATED",
+		"CONFIRMED",
+		"SHIPPED",
+		"DELIVERED",
+		"CANCELLED",
+	}
+}
+
+func MustNewOrderStatus(value string) OrderStatus {
+	o := OrderStatus{}
+	err := o.UnmarshalText([]byte(value))
+	if err != nil {
+		panic(fmt.Errorf("error unmarshalling order status: %s", value))
+	}
+
+	return o
+}
