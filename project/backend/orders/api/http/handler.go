@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-
 	"eats/backend/common"
 )
 
