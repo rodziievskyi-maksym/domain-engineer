@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+
 	"eats/backend/common"
 	"eats/backend/common/shared"
 	"eats/backend/orders/app"
@@ -27,7 +28,7 @@ func Register(ctx context.Context, e common.EchoRouter, handler Handler) error {
 }
 
 func (h Handler) RegisterCustomer(ctx context.Context, request RegisterCustomerRequestObject) (RegisterCustomerResponseObject, error) {
-	customerUUID := common.NewUUIDv7()
+	customerUUID := app.CustomerUUID{common.NewUUIDv7()}
 
 	commonAddress, err := openapiAddressToSharedAddress(request.Body.Address)
 	if err != nil {
@@ -59,7 +60,6 @@ func openapiAddressToSharedAddress(address Address) (shared.Address, error) {
 		address.City,
 		address.CountryCode,
 	)
-
 	if err != nil {
 		return shared.Address{}, err
 	}
