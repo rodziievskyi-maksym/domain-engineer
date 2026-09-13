@@ -3,23 +3,21 @@ package http
 import (
 	"context"
 	"eats/backend/common"
+	"eats/backend/common/shared"
+	"eats/backend/orders/app"
 )
 
-type CustomerRepository interface {
-	RegisterCustomer(ctx context.Context, customerUUID common.UUID, customer RegisterCustomer) error
-}
-
 type Handler struct {
-	customerRepository CustomerRepository
+	app *app.Service
 }
 
-func NewHandler(customerRepository CustomerRepository) Handler {
-	if customerRepository == nil {
-		panic("customerRepository cannot be nil")
+func NewHandler(app *app.Service) Handler {
+	if app == nil {
+		panic("order app cannot be nil")
 	}
 
 	return Handler{
-		customerRepository: customerRepository,
+		app: app,
 	}
 }
 
@@ -31,11 +29,40 @@ func Register(ctx context.Context, e common.EchoRouter, handler Handler) error {
 func (h Handler) RegisterCustomer(ctx context.Context, request RegisterCustomerRequestObject) (RegisterCustomerResponseObject, error) {
 	customerUUID := common.NewUUIDv7()
 
-	if err := h.customerRepository.RegisterCustomer(ctx, customerUUID, *request.Body); err != nil {
+	commonAddress, err := openapiAddressToSharedAddress(request.Body.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	customer := app.Customer{
+		CustomerUUID: customerUUID,
+		Name:         request.Body.Name,
+		Email:        string(request.Body.Email),
+		Address:      commonAddress,
+		PhoneNumber:  request.Body.PhoneNumber,
+	}
+
+	if err := h.app.RegisterCustomer(context.Background(), customer); err != nil {
 		return nil, err
 	}
 
 	return RegisterCustomer201JSONResponse{
 		CustomerUuid: customerUUID,
 	}, nil
+}
+
+func openapiAddressToSharedAddress(address Address) (shared.Address, error) {
+	commonAddress, err := shared.NewAddress(
+		address.Line1,
+		address.Line2,
+		address.PostalCode,
+		address.City,
+		address.CountryCode,
+	)
+
+	if err != nil {
+		return shared.Address{}, err
+	}
+
+	return commonAddress, nil
 }
