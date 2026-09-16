@@ -5,10 +5,10 @@ package shared_test
 import (
 	"testing"
 
+	"eats/backend/common/shared"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"eats/backend/common/shared"
 )
 
 func TestMustNewCurrency(t *testing.T) {
